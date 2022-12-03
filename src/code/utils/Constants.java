@@ -11,4 +11,6 @@ public abstract class Constants {
 
   public static final int EMPTY_CELL = 0;
   public static final int WRECK = -1;
+
+  public static final String NO_PATH = "NO_PATH";
 }

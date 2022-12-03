@@ -15,9 +15,13 @@ import code.utils.Constants;
 import code.utils.Utils;
 
 // TODO: need to figure out what heuristics to implement
+// h1 => remaining passengers that still need rescue
+// (node1, node2) -> numberOfPassengers(node1.getState().getShips()) - numberOfPassengers(node2.getState().getShips())
+// h2 => remaining black boxes that stil need retrievel 
+// (node1, node2) -> numberOfBlackBoxes(node1.getState().getShips()) - numberOfBlackBoxes(node2.getState().getShips())
 enum Heuristic {
-  MANHATTAN,
-  EUCLIDIAN
+  NUMBER_OF_PASSENGERS,
+  NUMBER_OF_BLACK_BOXES
 }
 
 public class CoastGuard extends SearchProblem<CoastGuardState> {
@@ -101,7 +105,7 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     int cgX = Utils.randomInt(0, cols - 1);
     int cgY = Utils.randomInt(0, rows - 1);
 
-    sb.append(rows).append(",").append(cols).append(";").append(capacity).append(";").append(cgX).append(",")
+    sb.append(cols).append(",").append(rows).append(";").append(capacity).append(";").append(cgX).append(",")
         .append(cgY).append(";");
 
     boolean mask[][] = new boolean[rows][cols];
@@ -139,7 +143,7 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     }
   }
 
-  private String constructPath(SearchTreeNode<CoastGuardState> node) {
+  private String constructPlan(SearchTreeNode<CoastGuardState> node) {
     LinkedList<String> ll = new LinkedList<String>();
     SearchTreeNode<CoastGuardState> current = node;
     while (!current.isRoot()) {
@@ -170,7 +174,7 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
       SearchTreeNode<CoastGuardState> node = q.poll();
       exploredNodes++;
       if (this.goalTest(node.getState())) {
-        String plan = constructPath(node);
+        String plan = constructPlan(node);
         sb.append(plan).append(";");
         sb.append(node.getState().getDeaths()).append(";");
         sb.append(node.getState().getRetrieves()).append(";");
@@ -179,10 +183,11 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
       }
       for (Action<CoastGuardState> action : this.getActions()) {
         CoastGuardState resultState = action.perform(node.getState());
-        if (resultState != null && !visitedStates.contains(resultState.getHash())) {
-          visitedStates.add(resultState.getHash());
+        String hash;
+        if (resultState != null && !visitedStates.contains(hash = resultState.getHash())) {
+          visitedStates.add(hash);
           SearchTreeNode<CoastGuardState> resultNode = new SearchTreeNode<CoastGuardState>(resultState, node, action,
-              node.getDepth() + 1, node.getDepth() + 1);
+              node.getDepth() + 1, resultState.getDeaths() + node.getDepth() + 1);
           q.add(resultNode);
         }
       }
@@ -201,8 +206,14 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
   }
 
   private String iterativeDeepeningSearch(SearchTreeNode<CoastGuardState> root) {
-    // TODO: implement iterative deepening search
-    return "";
+    String sol;
+    for (int i = 0; i < Integer.MAX_VALUE; ++i) {
+      sol = limitedDepthFirstSearch(root, i);
+      if (sol != Constants.NO_PATH) {
+        return sol;
+      }
+    }
+    return Constants.NO_PATH;
   }
 
   private String greedySearch(SearchTreeNode<CoastGuardState> root, Heuristic heuristic) {

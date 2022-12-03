@@ -15,20 +15,8 @@ public class CoastGuardState {
     this.maxCapacity = maxCapacity;
     this.retrieves = retrieves;
     this.deaths = deaths;
-
-    this.ships = new int[ships.length][ships[0].length];
-    for (int i = 0; i < this.ships.length; ++i) {
-      for (int j = 0; j < this.ships[i].length; ++j) {
-        this.ships[i][j] = ships[i][j];
-      }
-    }
-
-    this.stations = new boolean[stations.length][stations[0].length];
-    for (int i = 0; i < this.stations.length; ++i) {
-      for (int j = 0; j < this.stations[i].length; ++j) {
-        this.stations[i][j] = stations[i][j];
-      }
-    }
+    this.ships = ships;
+    this.stations = stations;
   }
 
   public void setShipCell(int row, int col, int val) {
@@ -81,6 +69,7 @@ public class CoastGuardState {
 
   public String getHash() {
     // TODO: check if hashing function needs enhancement
-    return currentRow + "_" + currentCol + "_" + currentCapacity + "_" + Utils.arrayToString(ships);
+    return currentRow + "_" + currentCol + "_" + currentCapacity + "_" + retrieves + "_" + deaths + "_"
+        + Utils.arrayToString(ships);
   }
 }
