@@ -26,8 +26,7 @@ public class RetrieveAction extends Action<CoastGuardState> {
     int deaths = super.updateShips(shipsCopy, updatedShips);
 
     return new CoastGuardState(state.getCurrentRow(), state.getCurrentCol(), state.getCurrentCapacity(),
-        state.getMaxCapacity(), state.getRetrieves() + 1, state.getDeaths() + deaths, updatedShips,
-        state.getStations());
+        state.getRetrieves() + 1, state.getDeaths() + deaths, updatedShips);
   }
 
   @Override

@@ -3,20 +3,17 @@ package code;
 import code.utils.Utils;
 
 public class CoastGuardState {
-  private int currentRow, currentCol, currentCapacity, maxCapacity, retrieves, deaths;
+  private int currentRow, currentCol, currentCapacity, retrieves, deaths;
   private int ships[][];
-  private boolean stations[][];
 
-  public CoastGuardState(int currentRow, int currentCol, int currentCapacity, int maxCapacity, int retrieves,
-      int deaths, int ships[][], boolean stations[][]) {
+  public CoastGuardState(int currentRow, int currentCol, int currentCapacity, int retrieves, int deaths,
+      int ships[][]) {
     this.currentRow = currentRow;
     this.currentCol = currentCol;
     this.currentCapacity = currentCapacity;
-    this.maxCapacity = maxCapacity;
     this.retrieves = retrieves;
     this.deaths = deaths;
     this.ships = ships;
-    this.stations = stations;
   }
 
   public void setShipCell(int row, int col, int val) {
@@ -27,20 +24,8 @@ public class CoastGuardState {
     return this.ships[row][col];
   }
 
-  public void setStationCell(int row, int col, boolean val) {
-    this.stations[row][col] = val;
-  }
-
-  public boolean getStationCell(int row, int col) {
-    return this.stations[row][col];
-  }
-
   public int[][] getShips() {
     return this.ships;
-  }
-
-  public boolean[][] getStations() {
-    return this.stations;
   }
 
   public int getCurrentRow() {
@@ -53,10 +38,6 @@ public class CoastGuardState {
 
   public int getCurrentCapacity() {
     return this.currentCapacity;
-  }
-
-  public int getMaxCapacity() {
-    return this.maxCapacity;
   }
 
   public int getRetrieves() {
