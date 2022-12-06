@@ -2,7 +2,9 @@ package code;
 
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Stack;
 import java.util.StringTokenizer;
 
 import code.actions.Action;
@@ -199,8 +201,36 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
   }
 
   private String limitedDepthFirstSearch(SearchTreeNode<CoastGuardState> root, int limit) {
-    // TODO: implement limited DFS
-    return "";
+    Stack<SearchTreeNode<CoastGuardState>> stack = new Stack<SearchTreeNode<CoastGuardState>>();
+    stack.push(root);
+
+    StringBuilder sb = new StringBuilder();
+    int exploredNodes = 0;
+    while (!stack.isEmpty()) {
+      SearchTreeNode<CoastGuardState> node = stack.pop();
+      exploredNodes++;
+      if (this.goalTest(node.getState())) {
+        String plan = constructPlan(node);
+        sb.append(plan).append(";");
+        sb.append(node.getState().getDeaths()).append(";");
+        sb.append(node.getState().getRetrieves()).append(";");
+        sb.append(exploredNodes);
+        break;
+      }
+      if (node.getDepth() + 1 <= limit) {
+        for (Action<CoastGuardState> action : this.getActions()) {
+          CoastGuardState resultState = action.perform(node.getState());
+          String hash;
+          if (resultState != null && !visitedStates.contains(hash = resultState.getHash())) {
+            visitedStates.add(hash);
+            SearchTreeNode<CoastGuardState> resultNode = new SearchTreeNode<CoastGuardState>(resultState, node, action,
+                node.getDepth() + 1, resultState.getDeaths() + node.getDepth() + 1);
+            stack.push(resultNode);
+          }
+        }
+      }
+    }
+    return sb.length() > 0 ? sb.toString() : Constants.NO_PATH;
   }
 
   private String depthFirstSearch(SearchTreeNode<CoastGuardState> root) {
@@ -211,11 +241,44 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     String sol;
     for (int i = 0; i < Integer.MAX_VALUE; ++i) {
       sol = limitedDepthFirstSearch(root, i);
+      // need to clear visited states after each call to Limited DFS
+      visitedStates.clear();
       if (sol != Constants.NO_PATH) {
         return sol;
       }
     }
     return Constants.NO_PATH;
+  }
+
+  private String uniformCostSearch(SearchTreeNode<CoastGuardState> root) {
+    PriorityQueue<SearchTreeNode<CoastGuardState>> q = new PriorityQueue<SearchTreeNode<CoastGuardState>>(
+        (node1, node2) -> (int) (node1.getPathCost() - node2.getPathCost()));
+    q.add(root);
+    StringBuilder sb = new StringBuilder();
+    int exploredNodes = 0;
+    while (!q.isEmpty()) {
+      SearchTreeNode<CoastGuardState> node = q.poll();
+      exploredNodes++;
+      if (this.goalTest(node.getState())) {
+        String plan = constructPlan(node);
+        sb.append(plan).append(";");
+        sb.append(node.getState().getDeaths()).append(";");
+        sb.append(node.getState().getRetrieves()).append(";");
+        sb.append(exploredNodes);
+        break;
+      }
+      for (Action<CoastGuardState> action : this.getActions()) {
+        CoastGuardState resultState = action.perform(node.getState());
+        String hash;
+        if (resultState != null && !visitedStates.contains(hash = resultState.getHash())) {
+          visitedStates.add(hash);
+          SearchTreeNode<CoastGuardState> resultNode = new SearchTreeNode<CoastGuardState>(resultState, node, action,
+              node.getDepth() + 1, resultState.getDeaths() + node.getDepth() + 1);
+          q.add(resultNode);
+        }
+      }
+    }
+    return sb.toString();
   }
 
   private String greedySearch(SearchTreeNode<CoastGuardState> root, Heuristic heuristic) {
@@ -280,6 +343,9 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
         break;
       case Constants.IterativeDeepeningSearch:
         res = coastGuardSearchProblem.iterativeDeepeningSearch(rootNode);
+        break;
+      case Constants.UniformCostSearch:
+        res = coastGuardSearchProblem.uniformCostSearch(rootNode);
         break;
       // case Constants.GreedySearchWithEuclideanDistanceSearch:
       // res = coastGuardSearchProblem.greedySearch(rootNode, Heuristic.EUCLIDIAN);

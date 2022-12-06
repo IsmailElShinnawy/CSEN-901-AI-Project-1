@@ -39,7 +39,6 @@ public class CoastGuardPublic {
 	public void testa1() throws Exception {
 		String solution = CoastGuard.solve(grid1, "BF", false);
 		solution = solution.replace(" ", "");
-		System.out.println(solution);
 		assertTrue("The output actions do not lead to a goal state.", applyPlan(grid1, solution));
 	}
 
@@ -743,8 +742,6 @@ public class CoastGuardPublic {
 				return false;
 			}
 		}
-
-		System.out.println("TEST");
 
 		return s.cool() && s.d == blue && s.r == doors;
 	}
