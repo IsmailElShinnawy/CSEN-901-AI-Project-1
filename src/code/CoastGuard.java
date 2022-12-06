@@ -26,6 +26,15 @@ enum Heuristic {
   NUMBER_OF_BLACK_BOXES
 }
 
+enum AStarHeuristic {
+  // This heuristic aims at favoriting the nodes with more number of empty cells,
+  // since our end goal is an empty grid where no more passengers can be saved and
+  // no more black boxes can be retrieved. The problem tho is that this heuristic
+  // does not care to favor nodes where we save more passengers or retrieve more
+  // black boxes
+  EMPTY_CELLS
+}
+
 public class CoastGuard extends SearchProblem<CoastGuardState> {
 
   private static final int MIN_ROWS = 5, MAX_ROWS = 15, MIN_COLS = 5, MAX_COLS = 15;
@@ -286,9 +295,44 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     return "";
   }
 
-  private String aStarSearch(SearchTreeNode<CoastGuardState> root, Heuristic heuristic) {
-    // TODO: implement a star search
-    return "";
+  private String aStarSearch(SearchTreeNode<CoastGuardState> root, AStarHeuristic heuristic) {
+    PriorityQueue<SearchTreeNode<CoastGuardState>> pq = new PriorityQueue<SearchTreeNode<CoastGuardState>>(
+        (node1, node2) -> {
+          if (heuristic == AStarHeuristic.EMPTY_CELLS) {
+            double f1 = node1.getPathCost() + Utils.getNumberOfEmptyCells(node1.getState().getShips());
+            double f2 = node2.getPathCost() + Utils.getNumberOfEmptyCells(node2.getState().getShips());
+            return (int) (f1 - f2);
+          }
+          return 0;
+        });
+
+    pq.add(root);
+    StringBuilder sb = new StringBuilder();
+    int exploredNodes = 0;
+    while (!pq.isEmpty()) {
+      SearchTreeNode<CoastGuardState> node = pq.poll();
+      exploredNodes++;
+      if (this.goalTest(node.getState())) {
+        String plan = constructPlan(node);
+        sb.append(plan).append(";");
+        sb.append(node.getState().getDeaths()).append(";");
+        sb.append(node.getState().getRetrieves()).append(";");
+        sb.append(exploredNodes);
+        break;
+      }
+      for (Action<CoastGuardState> action : this.getActions()) {
+        CoastGuardState resultState = action.perform(node.getState());
+        String hash;
+        if (resultState != null && !visitedStates.contains(hash = resultState.getHash())) {
+          visitedStates.add(hash);
+          SearchTreeNode<CoastGuardState> resultNode = new SearchTreeNode<CoastGuardState>(resultState, node, action,
+              node.getDepth() + 1, resultState.getDeaths() + node.getDepth() + 1);
+          pq.add(resultNode);
+        }
+      }
+    }
+
+    return sb.toString();
   }
 
   public static String solve(String grid, String searchStrategy, boolean visualise) {
@@ -353,9 +397,9 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
       // case Constants.GreedySearchWithManhattanDistanceSearch:
       // res = coastGuardSearchProblem.greedySearch(rootNode, Heuristic.MANHATTAN);
       // break;
-      // case Constants.AStarSearchWithEuclideanDistanceSearch:
-      // res = coastGuardSearchProblem.aStarSearch(rootNode, Heuristic.EUCLIDIAN);
-      // break;
+      case Constants.AStarSearchWithEmptyCellsHeuristic:
+        res = coastGuardSearchProblem.aStarSearch(rootNode, AStarHeuristic.EMPTY_CELLS);
+        break;
       // case Constants.AStarSearchWithManhattanDistanceSearch:
       // res = coastGuardSearchProblem.aStarSearch(rootNode, Heuristic.MANHATTAN);
       // break;
