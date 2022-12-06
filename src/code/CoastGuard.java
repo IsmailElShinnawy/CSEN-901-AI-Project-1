@@ -325,8 +325,44 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
   }
 
   private String greedySearch(SearchTreeNode<CoastGuardState> root, Heuristic heuristic) {
-    // TODO: implement greedy search
-    return "";
+    PriorityQueue<SearchTreeNode<CoastGuardState>> q = new PriorityQueue<SearchTreeNode<CoastGuardState>>(
+        (node1, node2) -> {
+          if (heuristic == Heuristic.HEURISTIC_1) {
+            return (int) (heuristic1Score(node1) - heuristic1Score(node2));
+          } else if (heuristic == Heuristic.HEURISTIC_2) {
+            return (int) (heuristic2Score(node1) - heuristic2Score(node2));
+          }
+          return 0;
+        });
+
+    q.add(root);
+
+    StringBuilder sb = new StringBuilder();
+    int exploredNodes = 0;
+    while (!q.isEmpty()) {
+      SearchTreeNode<CoastGuardState> node = q.poll();
+      exploredNodes++;
+      if (this.goalTest(node.getState())) {
+        String plan = constructPlan(node);
+        sb.append(plan).append(";");
+        sb.append(node.getState().getDeaths()).append(";");
+        sb.append(node.getState().getRetrieves()).append(";");
+        sb.append(exploredNodes);
+        break;
+      }
+      for (Action<CoastGuardState> action : this.getActions()) {
+        CoastGuardState resultState = action.perform(node.getState());
+        String hash;
+        if (resultState != null && !visitedStates.contains(hash = resultState.getHash())) {
+          visitedStates.add(hash);
+          SearchTreeNode<CoastGuardState> resultNode = new SearchTreeNode<CoastGuardState>(resultState, node, action,
+              node.getDepth() + 1, resultState.getDeaths() + node.getDepth() + 1);
+          q.add(resultNode);
+        }
+      }
+    }
+
+    return sb.toString();
   }
 
   private String aStarSearch(SearchTreeNode<CoastGuardState> root, Heuristic heuristic) {
@@ -439,17 +475,17 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
       case Constants.UniformCostSearch:
         res = coastGuardSearchProblem.uniformCostSearch(rootNode);
         break;
-      // case Constants.GreedySearchWithEuclideanDistanceSearch:
-      // res = coastGuardSearchProblem.greedySearch(rootNode, Heuristic.EUCLIDIAN);
-      // break;
-      // case Constants.GreedySearchWithManhattanDistanceSearch:
-      // res = coastGuardSearchProblem.greedySearch(rootNode, Heuristic.MANHATTAN);
-      // break;
       case Constants.AStarSearchWithFirstHeuristic:
         res = coastGuardSearchProblem.aStarSearch(rootNode, Heuristic.HEURISTIC_1);
         break;
       case Constants.AStarSearchWithSecondHeuristic:
         res = coastGuardSearchProblem.aStarSearch(rootNode, Heuristic.HEURISTIC_2);
+        break;
+      case Constants.GreedySearchWithFirstHeuristic:
+        res = coastGuardSearchProblem.greedySearch(rootNode, Heuristic.HEURISTIC_1);
+        break;
+      case Constants.GreedySearchWithSecondHeuristic:
+        res = coastGuardSearchProblem.greedySearch(rootNode, Heuristic.HEURISTIC_2);
         break;
       default:
         res = "SEARCH_STRATEGY_NOT_SUPPORTED";
