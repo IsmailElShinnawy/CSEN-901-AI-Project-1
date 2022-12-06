@@ -30,6 +30,8 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
   private static final int MIN_CAPACITY = 30, MAX_CAPACITY = 100;
   private static final int MIN_PASSENGERS = 1, MAX_PASSENGERS = 100;
 
+  private static int maxCapacity;
+  private static boolean[][] stations;
   private HashSet<String> visitedStates;
 
   public CoastGuard(CoastGuardState initialState) {
@@ -238,21 +240,25 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
 
     int capacity = Integer.parseInt(mainTokenizer.nextToken());
 
+    maxCapacity = capacity;
+
     String initialRowAndCol = mainTokenizer.nextToken();
     helperTokenizer = new StringTokenizer(initialRowAndCol, ",");
     int cgRow = Integer.parseInt(helperTokenizer.nextToken());
     int cgCol = Integer.parseInt(helperTokenizer.nextToken());
 
     boolean stationsGrid[][] = new boolean[rows][cols];
-    String stations = mainTokenizer.nextToken();
-    populateStationsGrid(stations, stationsGrid);
+    String stationsToken = mainTokenizer.nextToken();
+    populateStationsGrid(stationsToken, stationsGrid);
+
+    stations = stationsGrid;
 
     int shipsGrid[][] = new int[rows][cols];
-    String ships = mainTokenizer.nextToken();
-    populateShipsGrid(ships, shipsGrid);
+    String shipsToken = mainTokenizer.nextToken();
+    populateShipsGrid(shipsToken, shipsGrid);
 
     // Solving
-    CoastGuardState rootState = new CoastGuardState(cgRow, cgCol, 0, capacity, 0, 0, shipsGrid, stationsGrid);
+    CoastGuardState rootState = new CoastGuardState(cgRow, cgCol, 0, 0, 0, shipsGrid);
     SearchTreeNode<CoastGuardState> rootNode = new SearchTreeNode<CoastGuardState>(rootState, null, null, 0, 0);
 
     CoastGuard coastGuardSearchProblem = new CoastGuard(rootState);
@@ -294,4 +300,11 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     return res;
   }
 
+  public static boolean isStationAt(int row, int col) {
+    return stations == null ? false : stations[row][col];
+  }
+
+  public static int getMaxCapacity() {
+    return maxCapacity;
+  }
 }

@@ -1,12 +1,13 @@
 package code.actions;
 
+import code.CoastGuard;
 import code.CoastGuardState;
 
 public class DropAction extends Action<CoastGuardState> {
 
   @Override
   public CoastGuardState perform(CoastGuardState state) {
-    if (!state.getStationCell(state.getCurrentRow(), state.getCurrentCol())) {
+    if (!CoastGuard.isStationAt(state.getCurrentRow(), state.getCurrentCol())) {
       return null;
     }
 
@@ -15,8 +16,8 @@ public class DropAction extends Action<CoastGuardState> {
 
     int deaths = super.updateShips(oldShips, updatedShips);
 
-    return new CoastGuardState(state.getCurrentRow(), state.getCurrentCol(), 0, state.getMaxCapacity(),
-        state.getRetrieves(), state.getDeaths() + deaths, updatedShips, state.getStations());
+    return new CoastGuardState(state.getCurrentRow(), state.getCurrentCol(), 0, state.getRetrieves(),
+        state.getDeaths() + deaths, updatedShips);
   }
 
   @Override

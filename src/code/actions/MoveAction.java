@@ -40,8 +40,8 @@ public class MoveAction extends Action<CoastGuardState> {
 
     int deaths = super.updateShips(ships, updatedShips);
 
-    return new CoastGuardState(newRow, newCol, state.getCurrentCapacity(), state.getMaxCapacity(), state.getRetrieves(),
-        state.getDeaths() + deaths, updatedShips, state.getStations());
+    return new CoastGuardState(newRow, newCol, state.getCurrentCapacity(), state.getRetrieves(),
+        state.getDeaths() + deaths, updatedShips);
   }
 
   @Override
