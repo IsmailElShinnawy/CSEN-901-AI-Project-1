@@ -44,8 +44,7 @@ public class MoveAction extends Action<CoastGuardState> {
     CoastGuardState resultState = new CoastGuardState(newRow, newCol, node.getState().getCurrentCapacity(),
         node.getState().getRetrieves(), node.getState().getDeaths() + deaths, updatedShips);
 
-    return new SearchTreeNode<CoastGuardState>(resultState, node, this, node.getDepth() + 1,
-        resultState.getDeaths() + node.getDepth() + 1);
+    return new SearchTreeNode<CoastGuardState>(resultState, node, this, resultState.getDeaths() + node.getDepth() + 1);
   }
 
   @Override

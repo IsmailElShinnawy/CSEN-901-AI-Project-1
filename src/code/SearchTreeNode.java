@@ -6,14 +6,14 @@ public class SearchTreeNode<T> {
   private T state;
   private SearchTreeNode<T> parent;
   private Action<T> generatingAction;
-  private int depth;
   private double pathCost;
 
-  public SearchTreeNode(T state, SearchTreeNode<T> parent, Action<T> generatingAction, int depth, double pathCost) {
+  private int memoizedDepth = -1;
+
+  public SearchTreeNode(T state, SearchTreeNode<T> parent, Action<T> generatingAction, double pathCost) {
     this.state = state;
     this.parent = parent;
     this.generatingAction = generatingAction;
-    this.depth = depth;
     this.pathCost = pathCost;
   }
 
@@ -34,7 +34,9 @@ public class SearchTreeNode<T> {
   }
 
   public int getDepth() {
-    return this.depth;
+    if (memoizedDepth == -1)
+      this.memoizedDepth = isRoot() ? 0 : this.getParent().getDepth() + 1;
+    return this.memoizedDepth;
   }
 
   public boolean isRoot() {

@@ -11,7 +11,7 @@ public class GeneralSearch {
   public static <T extends Hashable> Tuple<SearchTreeNode<T>, Integer> search(SearchProblem<T> problem,
       Store<SearchTreeNode<T>> store) {
     HashSet<String> visitedStates = new HashSet<String>();
-    store.add(new SearchTreeNode<T>(problem.getInitialState(), null, null, 0, 0));
+    store.add(new SearchTreeNode<T>(problem.getInitialState(), null, null, 0));
 
     int exploredNodes = 0;
     while (!store.isEmpty()) {

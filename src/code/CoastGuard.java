@@ -185,7 +185,7 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     return sb.toString();
   }
 
-  private String limitedDepthFirstSearch(SearchTreeNode<CoastGuardState> root, int limit) {
+  private String limitedDepthFirstSearch(int limit) {
     Stack<SearchTreeNode<CoastGuardState>> stack = new Stack<SearchTreeNode<CoastGuardState>>();
     StackAdapter<SearchTreeNode<CoastGuardState>> stackAdapter = new StackAdapter<SearchTreeNode<CoastGuardState>>(
         stack, limit);
@@ -208,14 +208,14 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     return sb.toString();
   }
 
-  private String depthFirstSearch(SearchTreeNode<CoastGuardState> root) {
-    return limitedDepthFirstSearch(root, Integer.MAX_VALUE);
+  private String depthFirstSearch() {
+    return limitedDepthFirstSearch(Integer.MAX_VALUE);
   }
 
-  private String iterativeDeepeningSearch(SearchTreeNode<CoastGuardState> root) {
+  private String iterativeDeepeningSearch() {
     String sol;
     for (int i = 0; i < Integer.MAX_VALUE; ++i) {
-      sol = limitedDepthFirstSearch(root, i);
+      sol = limitedDepthFirstSearch(i);
       if (sol != Constants.NO_PATH) {
         return sol;
       }
@@ -400,7 +400,6 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
 
     // Solving
     CoastGuardState rootState = new CoastGuardState(cgRow, cgCol, 0, 0, 0, shipsGrid);
-    SearchTreeNode<CoastGuardState> rootNode = new SearchTreeNode<CoastGuardState>(rootState, null, null, 0, 0);
 
     CoastGuard coastGuardSearchProblem = new CoastGuard(rootState);
     coastGuardSearchProblem.addAction(new PickupAction());
@@ -417,10 +416,10 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
         res = coastGuardSearchProblem.breadthFirstSearch();
         break;
       case Constants.DepthFirstSearch:
-        res = coastGuardSearchProblem.depthFirstSearch(rootNode);
+        res = coastGuardSearchProblem.depthFirstSearch();
         break;
       case Constants.IterativeDeepeningSearch:
-        res = coastGuardSearchProblem.iterativeDeepeningSearch(rootNode);
+        res = coastGuardSearchProblem.iterativeDeepeningSearch();
         break;
       case Constants.UniformCostSearch:
         res = coastGuardSearchProblem.uniformCostSearch();

@@ -20,8 +20,7 @@ public class DropAction extends Action<CoastGuardState> {
     CoastGuardState resultState = new CoastGuardState(node.getState().getCurrentRow(), node.getState().getCurrentCol(),
         0, node.getState().getRetrieves(), node.getState().getDeaths() + deaths, updatedShips);
 
-    return new SearchTreeNode<CoastGuardState>(resultState, node, this, node.getDepth() + 1,
-        resultState.getDeaths() + node.getDepth() + 1);
+    return new SearchTreeNode<CoastGuardState>(resultState, node, this, resultState.getDeaths() + node.getDepth() + 1);
   }
 
   @Override

@@ -50,8 +50,7 @@ public class PickupAction extends Action<CoastGuardState> {
         node.getState().getCurrentCapacity() + passengersToPickup, node.getState().getRetrieves(),
         node.getState().getDeaths() + deaths + deathsOffset, updatedShips);
 
-    return new SearchTreeNode<CoastGuardState>(resultState, node, this, node.getDepth() + 1,
-        resultState.getDeaths() + node.getDepth() + 1);
+    return new SearchTreeNode<CoastGuardState>(resultState, node, this, resultState.getDeaths() + node.getDepth() + 1);
   }
 
   @Override

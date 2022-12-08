@@ -31,8 +31,7 @@ public class RetrieveAction extends Action<CoastGuardState> {
         node.getState().getCurrentCapacity(), node.getState().getRetrieves() + 1, node.getState().getDeaths() + deaths,
         updatedShips);
 
-    return new SearchTreeNode<CoastGuardState>(resultState, node, this, node.getDepth() + 1,
-        resultState.getDeaths() + node.getDepth() + 1);
+    return new SearchTreeNode<CoastGuardState>(resultState, node, this, resultState.getDeaths() + node.getDepth() + 1);
   }
 
   @Override
