@@ -1,9 +1,10 @@
 package code.actions;
 
+import code.SearchTreeNode;
 import code.utils.Constants;
 
 public abstract class Action<T> {
-  public abstract T perform(T state);
+  public abstract SearchTreeNode<T> perform(SearchTreeNode<T> node);
 
   public int updateShips(int oldShips[][], int updatedShips[][]) {
     int deaths = 0;

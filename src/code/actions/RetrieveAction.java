@@ -1,23 +1,25 @@
 package code.actions;
 
 import code.CoastGuardState;
+import code.SearchTreeNode;
 import code.utils.Constants;
 
 public class RetrieveAction extends Action<CoastGuardState> {
 
   @Override
-  public CoastGuardState perform(CoastGuardState state) {
+  public SearchTreeNode<CoastGuardState> perform(SearchTreeNode<CoastGuardState> node) {
     // checks if the current cell is not a wreck
-    if (state.getShipCell(state.getCurrentRow(), state.getCurrentCol()) > Constants.WRECK) {
+    if (node.getState().getShipCell(node.getState().getCurrentRow(),
+        node.getState().getCurrentCol()) > Constants.WRECK) {
       return null;
     }
 
-    int[][] ships = state.getShips();
+    int[][] ships = node.getState().getShips();
     int[][] shipsCopy = new int[ships.length][ships[0].length];
     for (int i = 0; i < shipsCopy.length; ++i) {
       for (int j = 0; j < shipsCopy[i].length; ++j) {
         shipsCopy[i][j] = ships[i][j];
-        if (i == state.getCurrentRow() && j == state.getCurrentCol()) {
+        if (i == node.getState().getCurrentRow() && j == node.getState().getCurrentCol()) {
           shipsCopy[i][j] = Constants.EMPTY_CELL;
         }
       }
@@ -25,8 +27,12 @@ public class RetrieveAction extends Action<CoastGuardState> {
     int[][] updatedShips = new int[ships.length][ships[0].length];
     int deaths = super.updateShips(shipsCopy, updatedShips);
 
-    return new CoastGuardState(state.getCurrentRow(), state.getCurrentCol(), state.getCurrentCapacity(),
-        state.getRetrieves() + 1, state.getDeaths() + deaths, updatedShips);
+    CoastGuardState resultState = new CoastGuardState(node.getState().getCurrentRow(), node.getState().getCurrentCol(),
+        node.getState().getCurrentCapacity(), node.getState().getRetrieves() + 1, node.getState().getDeaths() + deaths,
+        updatedShips);
+
+    return new SearchTreeNode<CoastGuardState>(resultState, node, this, node.getDepth() + 1,
+        resultState.getDeaths() + node.getDepth() + 1);
   }
 
   @Override

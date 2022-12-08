@@ -181,12 +181,10 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
         break;
       }
       for (Action<CoastGuardState> action : this.getActions()) {
-        CoastGuardState resultState = action.perform(node.getState());
+        SearchTreeNode<CoastGuardState> resultNode = action.perform(node);
         String hash;
-        if (resultState != null && !visitedStates.contains(hash = resultState.getHash())) {
+        if (resultNode != null && !visitedStates.contains(hash = resultNode.getState().getHash())) {
           visitedStates.add(hash);
-          SearchTreeNode<CoastGuardState> resultNode = new SearchTreeNode<CoastGuardState>(resultState, node, action,
-              node.getDepth() + 1, resultState.getDeaths() + node.getDepth() + 1);
           q.add(resultNode);
         }
       }
@@ -214,12 +212,10 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
       }
       if (node.getDepth() + 1 <= limit) {
         for (Action<CoastGuardState> action : this.getActions()) {
-          CoastGuardState resultState = action.perform(node.getState());
+          SearchTreeNode<CoastGuardState> resultNode = action.perform(node);
           String hash;
-          if (resultState != null && !visitedStates.contains(hash = resultState.getHash())) {
+          if (resultNode != null && !visitedStates.contains(hash = resultNode.getState().getHash())) {
             visitedStates.add(hash);
-            SearchTreeNode<CoastGuardState> resultNode = new SearchTreeNode<CoastGuardState>(resultState, node, action,
-                node.getDepth() + 1, resultState.getDeaths() + node.getDepth() + 1);
             stack.push(resultNode);
           }
         }
@@ -263,12 +259,10 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
         break;
       }
       for (Action<CoastGuardState> action : this.getActions()) {
-        CoastGuardState resultState = action.perform(node.getState());
+        SearchTreeNode<CoastGuardState> resultNode = action.perform(node);
         String hash;
-        if (resultState != null && !visitedStates.contains(hash = resultState.getHash())) {
+        if (resultNode != null && !visitedStates.contains(hash = resultNode.getState().getHash())) {
           visitedStates.add(hash);
-          SearchTreeNode<CoastGuardState> resultNode = new SearchTreeNode<CoastGuardState>(resultState, node, action,
-              node.getDepth() + 1, resultState.getDeaths() + node.getDepth() + 1);
           q.add(resultNode);
         }
       }
@@ -351,12 +345,10 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
         break;
       }
       for (Action<CoastGuardState> action : this.getActions()) {
-        CoastGuardState resultState = action.perform(node.getState());
+        SearchTreeNode<CoastGuardState> resultNode = action.perform(node);
         String hash;
-        if (resultState != null && !visitedStates.contains(hash = resultState.getHash())) {
+        if (resultNode != null && !visitedStates.contains(hash = resultNode.getState().getHash())) {
           visitedStates.add(hash);
-          SearchTreeNode<CoastGuardState> resultNode = new SearchTreeNode<CoastGuardState>(resultState, node, action,
-              node.getDepth() + 1, resultState.getDeaths() + node.getDepth() + 1);
           q.add(resultNode);
         }
       }
@@ -405,12 +397,10 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
         break;
       }
       for (Action<CoastGuardState> action : this.getActions()) {
-        CoastGuardState resultState = action.perform(node.getState());
+        SearchTreeNode<CoastGuardState> resultNode = action.perform(node);
         String hash;
-        if (resultState != null && !visitedStates.contains(hash = resultState.getHash())) {
+        if (resultNode != null && !visitedStates.contains(hash = resultNode.getState().getHash())) {
           visitedStates.add(hash);
-          SearchTreeNode<CoastGuardState> resultNode = new SearchTreeNode<CoastGuardState>(resultState, node, action,
-              node.getDepth() + 1, resultState.getDeaths() + node.getDepth() + 1);
           pq.add(resultNode);
         }
       }
