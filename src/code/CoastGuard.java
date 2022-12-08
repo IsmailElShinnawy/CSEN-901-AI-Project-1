@@ -32,7 +32,7 @@ enum AStarHeuristic {
   // no more black boxes can be retrieved. The problem tho is that this heuristic
   // does not care to favor nodes where we save more passengers or retrieve more
   // black boxes
-  EMPTY_CELLS
+  HURISTIC_1
 }
 
 public class CoastGuard extends SearchProblem<CoastGuardState> {
@@ -298,9 +298,17 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
   private String aStarSearch(SearchTreeNode<CoastGuardState> root, AStarHeuristic heuristic) {
     PriorityQueue<SearchTreeNode<CoastGuardState>> pq = new PriorityQueue<SearchTreeNode<CoastGuardState>>(
         (node1, node2) -> {
-          if (heuristic == AStarHeuristic.EMPTY_CELLS) {
-            double f1 = node1.getPathCost() + Utils.getNumberOfEmptyCells(node1.getState().getShips());
-            double f2 = node2.getPathCost() + Utils.getNumberOfEmptyCells(node2.getState().getShips());
+          if (heuristic == AStarHeuristic.HURISTIC_1) {
+            int h1 = Utils.getNumberOfNonEmptyCells(node1.getState().getShips())
+                + node1.getState().getCurrentCapacity() > 0 ? 1 : 0;
+            double g1 = node1.getPathCost();
+            double f1 = g1 + h1;
+
+            int h2 = Utils.getNumberOfNonEmptyCells(node2.getState().getShips())
+                + node2.getState().getCurrentCapacity() > 0 ? 1 : 0;
+            double g2 = node2.getPathCost();
+            double f2 = g2 + h2;
+
             return (int) (f1 - f2);
           }
           return 0;
@@ -397,8 +405,8 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
       // case Constants.GreedySearchWithManhattanDistanceSearch:
       // res = coastGuardSearchProblem.greedySearch(rootNode, Heuristic.MANHATTAN);
       // break;
-      case Constants.AStarSearchWithEmptyCellsHeuristic:
-        res = coastGuardSearchProblem.aStarSearch(rootNode, AStarHeuristic.EMPTY_CELLS);
+      case Constants.AStarSearchWithNonEmptyCellsHeuristic:
+        res = coastGuardSearchProblem.aStarSearch(rootNode, AStarHeuristic.HURISTIC_1);
         break;
       // case Constants.AStarSearchWithManhattanDistanceSearch:
       // res = coastGuardSearchProblem.aStarSearch(rootNode, Heuristic.MANHATTAN);
