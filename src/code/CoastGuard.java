@@ -330,6 +330,7 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
   }
 
   private String aStarSearch(SearchTreeNode<CoastGuardState> root, Heuristic heuristic) {
+    visitedStates.clear();
     PriorityQueue<SearchTreeNode<CoastGuardState>> pq = new PriorityQueue<SearchTreeNode<CoastGuardState>>(
         (node1, node2) -> {
           double g1 = node1.getPathCost();
