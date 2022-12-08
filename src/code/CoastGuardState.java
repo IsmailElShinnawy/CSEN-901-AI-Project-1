@@ -1,8 +1,9 @@
 package code;
 
+import code.interfaces.Hashable;
 import code.utils.Utils;
 
-public class CoastGuardState {
+public class CoastGuardState implements Hashable {
   private int currentRow, currentCol, currentCapacity, retrieves, deaths;
   private int ships[][];
 
