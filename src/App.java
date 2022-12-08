@@ -8,5 +8,7 @@ public class App {
         System.out.println(sol1);
         String sol2 = CoastGuard.solve(grid0, "AS1", false);
         System.out.println(sol2);
+        String sol3 = CoastGuard.solve(grid0, "AS2", false);
+        System.out.println(sol3);
     }
 }
