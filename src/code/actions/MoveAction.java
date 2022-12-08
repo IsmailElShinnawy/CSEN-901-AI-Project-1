@@ -1,6 +1,7 @@
 package code.actions;
 
 import code.CoastGuardState;
+import code.SearchTreeNode;
 
 public class MoveAction extends Action<CoastGuardState> {
 
@@ -11,9 +12,9 @@ public class MoveAction extends Action<CoastGuardState> {
   }
 
   @Override
-  public CoastGuardState perform(CoastGuardState state) {
-    int newRow = state.getCurrentRow();
-    int newCol = state.getCurrentCol();
+  public SearchTreeNode<CoastGuardState> perform(SearchTreeNode<CoastGuardState> node) {
+    int newRow = node.getState().getCurrentRow();
+    int newCol = node.getState().getCurrentCol();
 
     switch (this.direction) {
       case UP:
@@ -29,7 +30,7 @@ public class MoveAction extends Action<CoastGuardState> {
         newCol += 1;
     }
 
-    int ships[][] = state.getShips();
+    int ships[][] = node.getState().getShips();
     int rows = ships.length;
     int cols = ships[0].length;
     int updatedShips[][] = new int[rows][cols];
@@ -40,8 +41,11 @@ public class MoveAction extends Action<CoastGuardState> {
 
     int deaths = super.updateShips(ships, updatedShips);
 
-    return new CoastGuardState(newRow, newCol, state.getCurrentCapacity(), state.getRetrieves(),
-        state.getDeaths() + deaths, updatedShips);
+    CoastGuardState resultState = new CoastGuardState(newRow, newCol, node.getState().getCurrentCapacity(),
+        node.getState().getRetrieves(), node.getState().getDeaths() + deaths, updatedShips);
+
+    return new SearchTreeNode<CoastGuardState>(resultState, node, this, node.getDepth() + 1,
+        resultState.getDeaths() + node.getDepth() + 1);
   }
 
   @Override

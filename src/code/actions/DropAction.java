@@ -2,22 +2,26 @@ package code.actions;
 
 import code.CoastGuard;
 import code.CoastGuardState;
+import code.SearchTreeNode;
 
 public class DropAction extends Action<CoastGuardState> {
 
   @Override
-  public CoastGuardState perform(CoastGuardState state) {
-    if (!CoastGuard.isStationAt(state.getCurrentRow(), state.getCurrentCol())) {
+  public SearchTreeNode<CoastGuardState> perform(SearchTreeNode<CoastGuardState> node) {
+    if (!CoastGuard.isStationAt(node.getState().getCurrentRow(), node.getState().getCurrentCol())) {
       return null;
     }
 
-    int[][] oldShips = state.getShips();
+    int[][] oldShips = node.getState().getShips();
     int[][] updatedShips = new int[oldShips.length][oldShips[0].length];
 
     int deaths = super.updateShips(oldShips, updatedShips);
 
-    return new CoastGuardState(state.getCurrentRow(), state.getCurrentCol(), 0, state.getRetrieves(),
-        state.getDeaths() + deaths, updatedShips);
+    CoastGuardState resultState = new CoastGuardState(node.getState().getCurrentRow(), node.getState().getCurrentCol(),
+        0, node.getState().getRetrieves(), node.getState().getDeaths() + deaths, updatedShips);
+
+    return new SearchTreeNode<CoastGuardState>(resultState, node, this, node.getDepth() + 1,
+        resultState.getDeaths() + node.getDepth() + 1);
   }
 
   @Override
