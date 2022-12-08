@@ -13,7 +13,9 @@ import code.actions.MoveAction;
 import code.actions.MoveDirection;
 import code.actions.PickupAction;
 import code.actions.RetrieveAction;
+import code.adapters.QueueAdapter;
 import code.utils.Constants;
+import code.utils.Tuple;
 import code.utils.Utils;
 
 enum Heuristic {
@@ -162,33 +164,25 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     return sb.substring(0, sb.length() - 1);
   }
 
-  private String breadthFirstSearch(SearchTreeNode<CoastGuardState> root) {
+  private String breadthFirstSearch() {
     Queue<SearchTreeNode<CoastGuardState>> q = new LinkedList<SearchTreeNode<CoastGuardState>>();
 
-    q.add(root);
+    QueueAdapter<SearchTreeNode<CoastGuardState>> qAdapter = new QueueAdapter<SearchTreeNode<CoastGuardState>>(q);
+
+    Tuple<SearchTreeNode<CoastGuardState>, Integer> goalTuple = GeneralSearch.search(this, qAdapter);
+    SearchTreeNode<CoastGuardState> goalNode = goalTuple.first;
+    int exploredNodes = goalTuple.second;
+
+    if (goalNode == null) {
+      return Constants.NO_PATH;
+    }
 
     StringBuilder sb = new StringBuilder();
-    int exploredNodes = 0;
-    while (!q.isEmpty()) {
-      SearchTreeNode<CoastGuardState> node = q.poll();
-      exploredNodes++;
-      if (this.goalTest(node.getState())) {
-        String plan = constructPlan(node);
-        sb.append(plan).append(";");
-        sb.append(node.getState().getDeaths()).append(";");
-        sb.append(node.getState().getRetrieves()).append(";");
-        sb.append(exploredNodes);
-        break;
-      }
-      for (Action<CoastGuardState> action : this.getActions()) {
-        SearchTreeNode<CoastGuardState> resultNode = action.perform(node);
-        String hash;
-        if (resultNode != null && !visitedStates.contains(hash = resultNode.getState().getHash())) {
-          visitedStates.add(hash);
-          q.add(resultNode);
-        }
-      }
-    }
+    String plan = constructPlan(goalNode);
+    sb.append(plan).append(";");
+    sb.append(goalNode.getState().getDeaths()).append(";");
+    sb.append(goalNode.getState().getRetrieves()).append(";");
+    sb.append(exploredNodes);
 
     return sb.toString();
   }
@@ -241,32 +235,26 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     return Constants.NO_PATH;
   }
 
-  private String uniformCostSearch(SearchTreeNode<CoastGuardState> root) {
+  private String uniformCostSearch() {
     PriorityQueue<SearchTreeNode<CoastGuardState>> q = new PriorityQueue<SearchTreeNode<CoastGuardState>>(
         (node1, node2) -> (int) (node1.getPathCost() - node2.getPathCost()));
-    q.add(root);
-    StringBuilder sb = new StringBuilder();
-    int exploredNodes = 0;
-    while (!q.isEmpty()) {
-      SearchTreeNode<CoastGuardState> node = q.poll();
-      exploredNodes++;
-      if (this.goalTest(node.getState())) {
-        String plan = constructPlan(node);
-        sb.append(plan).append(";");
-        sb.append(node.getState().getDeaths()).append(";");
-        sb.append(node.getState().getRetrieves()).append(";");
-        sb.append(exploredNodes);
-        break;
-      }
-      for (Action<CoastGuardState> action : this.getActions()) {
-        SearchTreeNode<CoastGuardState> resultNode = action.perform(node);
-        String hash;
-        if (resultNode != null && !visitedStates.contains(hash = resultNode.getState().getHash())) {
-          visitedStates.add(hash);
-          q.add(resultNode);
-        }
-      }
+    QueueAdapter<SearchTreeNode<CoastGuardState>> qAdapter = new QueueAdapter<SearchTreeNode<CoastGuardState>>(q);
+
+    Tuple<SearchTreeNode<CoastGuardState>, Integer> goalTuple = GeneralSearch.search(this, qAdapter);
+    SearchTreeNode<CoastGuardState> goalNode = goalTuple.first;
+    int exploredNodes = goalTuple.second;
+
+    if (goalNode == null) {
+      return Constants.NO_PATH;
     }
+
+    StringBuilder sb = new StringBuilder();
+    String plan = constructPlan(goalNode);
+    sb.append(plan).append(";");
+    sb.append(goalNode.getState().getDeaths()).append(";");
+    sb.append(goalNode.getState().getRetrieves()).append(";");
+    sb.append(exploredNodes);
+
     return sb.toString();
   }
 
@@ -318,7 +306,7 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     return score + node.getState().getCurrentCapacity() > 0 ? 1 : 0;
   }
 
-  private String greedySearch(SearchTreeNode<CoastGuardState> root, Heuristic heuristic) {
+  private String greedySearch(Heuristic heuristic) {
     PriorityQueue<SearchTreeNode<CoastGuardState>> q = new PriorityQueue<SearchTreeNode<CoastGuardState>>(
         (node1, node2) -> {
           if (heuristic == Heuristic.HEURISTIC_1) {
@@ -329,36 +317,27 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
           return 0;
         });
 
-    q.add(root);
+    QueueAdapter<SearchTreeNode<CoastGuardState>> qAdapter = new QueueAdapter<SearchTreeNode<CoastGuardState>>(q);
+
+    Tuple<SearchTreeNode<CoastGuardState>, Integer> goalTuple = GeneralSearch.search(this, qAdapter);
+    SearchTreeNode<CoastGuardState> goalNode = goalTuple.first;
+    int exploredNodes = goalTuple.second;
+
+    if (goalNode == null) {
+      return Constants.NO_PATH;
+    }
 
     StringBuilder sb = new StringBuilder();
-    int exploredNodes = 0;
-    while (!q.isEmpty()) {
-      SearchTreeNode<CoastGuardState> node = q.poll();
-      exploredNodes++;
-      if (this.goalTest(node.getState())) {
-        String plan = constructPlan(node);
-        sb.append(plan).append(";");
-        sb.append(node.getState().getDeaths()).append(";");
-        sb.append(node.getState().getRetrieves()).append(";");
-        sb.append(exploredNodes);
-        break;
-      }
-      for (Action<CoastGuardState> action : this.getActions()) {
-        SearchTreeNode<CoastGuardState> resultNode = action.perform(node);
-        String hash;
-        if (resultNode != null && !visitedStates.contains(hash = resultNode.getState().getHash())) {
-          visitedStates.add(hash);
-          q.add(resultNode);
-        }
-      }
-    }
+    String plan = constructPlan(goalNode);
+    sb.append(plan).append(";");
+    sb.append(goalNode.getState().getDeaths()).append(";");
+    sb.append(goalNode.getState().getRetrieves()).append(";");
+    sb.append(exploredNodes);
 
     return sb.toString();
   }
 
-  private String aStarSearch(SearchTreeNode<CoastGuardState> root, Heuristic heuristic) {
-    visitedStates.clear();
+  private String aStarSearch(Heuristic heuristic) {
     PriorityQueue<SearchTreeNode<CoastGuardState>> pq = new PriorityQueue<SearchTreeNode<CoastGuardState>>(
         (node1, node2) -> {
           double g1 = node1.getPathCost();
@@ -382,29 +361,22 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
           return 0;
         });
 
-    pq.add(root);
-    StringBuilder sb = new StringBuilder();
-    int exploredNodes = 0;
-    while (!pq.isEmpty()) {
-      SearchTreeNode<CoastGuardState> node = pq.poll();
-      exploredNodes++;
-      if (this.goalTest(node.getState())) {
-        String plan = constructPlan(node);
-        sb.append(plan).append(";");
-        sb.append(node.getState().getDeaths()).append(";");
-        sb.append(node.getState().getRetrieves()).append(";");
-        sb.append(exploredNodes);
-        break;
-      }
-      for (Action<CoastGuardState> action : this.getActions()) {
-        SearchTreeNode<CoastGuardState> resultNode = action.perform(node);
-        String hash;
-        if (resultNode != null && !visitedStates.contains(hash = resultNode.getState().getHash())) {
-          visitedStates.add(hash);
-          pq.add(resultNode);
-        }
-      }
+    QueueAdapter<SearchTreeNode<CoastGuardState>> qAdapter = new QueueAdapter<SearchTreeNode<CoastGuardState>>(pq);
+
+    Tuple<SearchTreeNode<CoastGuardState>, Integer> goalTuple = GeneralSearch.search(this, qAdapter);
+    SearchTreeNode<CoastGuardState> goalNode = goalTuple.first;
+    int exploredNodes = goalTuple.second;
+
+    if (goalNode == null) {
+      return Constants.NO_PATH;
     }
+
+    StringBuilder sb = new StringBuilder();
+    String plan = constructPlan(goalNode);
+    sb.append(plan).append(";");
+    sb.append(goalNode.getState().getDeaths()).append(";");
+    sb.append(goalNode.getState().getRetrieves()).append(";");
+    sb.append(exploredNodes);
 
     return sb.toString();
   }
@@ -454,7 +426,7 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     String res;
     switch (searchStrategy) {
       case Constants.BreadthFirstSearch:
-        res = coastGuardSearchProblem.breadthFirstSearch(rootNode);
+        res = coastGuardSearchProblem.breadthFirstSearch();
         break;
       case Constants.DepthFirstSearch:
         res = coastGuardSearchProblem.depthFirstSearch(rootNode);
@@ -463,19 +435,19 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
         res = coastGuardSearchProblem.iterativeDeepeningSearch(rootNode);
         break;
       case Constants.UniformCostSearch:
-        res = coastGuardSearchProblem.uniformCostSearch(rootNode);
+        res = coastGuardSearchProblem.uniformCostSearch();
         break;
       case Constants.AStarSearchWithFirstHeuristic:
-        res = coastGuardSearchProblem.aStarSearch(rootNode, Heuristic.HEURISTIC_1);
+        res = coastGuardSearchProblem.aStarSearch(Heuristic.HEURISTIC_1);
         break;
       case Constants.AStarSearchWithSecondHeuristic:
-        res = coastGuardSearchProblem.aStarSearch(rootNode, Heuristic.HEURISTIC_2);
+        res = coastGuardSearchProblem.aStarSearch(Heuristic.HEURISTIC_2);
         break;
       case Constants.GreedySearchWithFirstHeuristic:
-        res = coastGuardSearchProblem.greedySearch(rootNode, Heuristic.HEURISTIC_1);
+        res = coastGuardSearchProblem.greedySearch(Heuristic.HEURISTIC_1);
         break;
       case Constants.GreedySearchWithSecondHeuristic:
-        res = coastGuardSearchProblem.greedySearch(rootNode, Heuristic.HEURISTIC_2);
+        res = coastGuardSearchProblem.greedySearch(Heuristic.HEURISTIC_2);
         break;
       default:
         res = "SEARCH_STRATEGY_NOT_SUPPORTED";
