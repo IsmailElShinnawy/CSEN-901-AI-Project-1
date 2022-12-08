@@ -18,6 +18,11 @@ public class QueueAdapter<T> implements Store<T> {
   }
 
   @Override
+  public void add(T x, int depth) {
+    add(x);
+  }
+
+  @Override
   public T poll() {
     return q.poll();
   }

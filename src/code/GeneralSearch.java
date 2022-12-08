@@ -25,7 +25,7 @@ public class GeneralSearch {
         String hash;
         if (resultNode != null && !visitedStates.contains(hash = resultNode.getState().getHash())) {
           visitedStates.add(hash);
-          store.add(resultNode);
+          store.add(resultNode, resultNode.getDepth());
         }
       }
     }

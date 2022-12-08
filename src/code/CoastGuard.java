@@ -1,6 +1,5 @@
 package code;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -14,6 +13,7 @@ import code.actions.MoveDirection;
 import code.actions.PickupAction;
 import code.actions.RetrieveAction;
 import code.adapters.QueueAdapter;
+import code.adapters.StackAdapter;
 import code.utils.Constants;
 import code.utils.Tuple;
 import code.utils.Utils;
@@ -31,11 +31,9 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
 
   private static int maxCapacity;
   private static boolean[][] stations;
-  private HashSet<String> visitedStates;
 
   public CoastGuard(CoastGuardState initialState) {
     super(initialState);
-    visitedStates = new HashSet<String>();
   }
 
   @Override
@@ -189,33 +187,25 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
 
   private String limitedDepthFirstSearch(SearchTreeNode<CoastGuardState> root, int limit) {
     Stack<SearchTreeNode<CoastGuardState>> stack = new Stack<SearchTreeNode<CoastGuardState>>();
-    stack.push(root);
+    StackAdapter<SearchTreeNode<CoastGuardState>> stackAdapter = new StackAdapter<SearchTreeNode<CoastGuardState>>(
+        stack, limit);
+
+    Tuple<SearchTreeNode<CoastGuardState>, Integer> goalTuple = GeneralSearch.search(this, stackAdapter);
+    SearchTreeNode<CoastGuardState> goalNode = goalTuple.first;
+    int exploredNodes = goalTuple.second;
+
+    if (goalNode == null) {
+      return Constants.NO_PATH;
+    }
 
     StringBuilder sb = new StringBuilder();
-    int exploredNodes = 0;
-    while (!stack.isEmpty()) {
-      SearchTreeNode<CoastGuardState> node = stack.pop();
-      exploredNodes++;
-      if (this.goalTest(node.getState())) {
-        String plan = constructPlan(node);
-        sb.append(plan).append(";");
-        sb.append(node.getState().getDeaths()).append(";");
-        sb.append(node.getState().getRetrieves()).append(";");
-        sb.append(exploredNodes);
-        break;
-      }
-      if (node.getDepth() + 1 <= limit) {
-        for (Action<CoastGuardState> action : this.getActions()) {
-          SearchTreeNode<CoastGuardState> resultNode = action.perform(node);
-          String hash;
-          if (resultNode != null && !visitedStates.contains(hash = resultNode.getState().getHash())) {
-            visitedStates.add(hash);
-            stack.push(resultNode);
-          }
-        }
-      }
-    }
-    return sb.length() > 0 ? sb.toString() : Constants.NO_PATH;
+    String plan = constructPlan(goalNode);
+    sb.append(plan).append(";");
+    sb.append(goalNode.getState().getDeaths()).append(";");
+    sb.append(goalNode.getState().getRetrieves()).append(";");
+    sb.append(exploredNodes);
+
+    return sb.toString();
   }
 
   private String depthFirstSearch(SearchTreeNode<CoastGuardState> root) {
@@ -226,8 +216,6 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     String sol;
     for (int i = 0; i < Integer.MAX_VALUE; ++i) {
       sol = limitedDepthFirstSearch(root, i);
-      // need to clear visited states after each call to Limited DFS
-      visitedStates.clear();
       if (sol != Constants.NO_PATH) {
         return sol;
       }
