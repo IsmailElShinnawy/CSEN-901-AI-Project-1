@@ -13,6 +13,8 @@ public class GeneralSearch {
     HashSet<String> visitedStates = new HashSet<String>();
     store.add(new SearchTreeNode<T>(problem.getInitialState(), null, null, 0));
 
+    String initialStateHash = problem.getInitialState().getHash();
+    visitedStates.add(initialStateHash);
     int exploredNodes = 0;
     while (!store.isEmpty()) {
       SearchTreeNode<T> node = store.poll();
