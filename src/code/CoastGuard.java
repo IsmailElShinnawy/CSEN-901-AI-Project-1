@@ -16,14 +16,9 @@ import code.actions.RetrieveAction;
 import code.utils.Constants;
 import code.utils.Utils;
 
-// TODO: need to figure out what heuristics to implement
-// h1 => remaining passengers that still need rescue
-// (node1, node2) -> numberOfPassengers(node1.getState().getShips()) - numberOfPassengers(node2.getState().getShips())
-// h2 => remaining black boxes that stil need retrievel 
-// (node1, node2) -> numberOfBlackBoxes(node1.getState().getShips()) - numberOfBlackBoxes(node2.getState().getShips())
 enum Heuristic {
-  NUMBER_OF_PASSENGERS,
-  NUMBER_OF_BLACK_BOXES
+  HEURISTIC_1,
+  HEURISTIC_2
 }
 
 public class CoastGuard extends SearchProblem<CoastGuardState> {
@@ -281,14 +276,111 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     return sb.toString();
   }
 
+  /**
+   * Relaxes the problem by removing the following constraints:
+   * 
+   * - Agent can pickup passengers only when they are at the same cell
+   * - Agent can pickup passengers only if they have capacity
+   * - Agent can drop passengers only at a station
+   * - Agent can retrieve BBs only if they are in the same cell as the wreck
+   */
+  private double heuristic1Score(SearchTreeNode<CoastGuardState> node) {
+    int score = 0;
+    int ships[][] = node.getState().getShips();
+    for (int i = 0; i < ships.length; ++i) {
+      for (int j = 0; j < ships[i].length; ++j) {
+        if (ships[i][j] > 0) {
+          score += 2;
+        } else {
+          score += 1;
+        }
+      }
+    }
+
+    return score + node.getState().getCurrentCapacity() > 0 ? 1 : 0;
+  }
+
+  /**
+   * Relaxes the problem by removing the following constraints:
+   * 
+   * - Agent can pickup passengers only when they are at the same cell
+   * - Agent can drop passengers only at a station
+   * - Agent can retrieve BBs only if they are in the same cell as the wreck
+   */
+  private double heuristic2Score(SearchTreeNode<CoastGuardState> node) {
+    int ships[][] = node.getState().getShips();
+    double score = 0;
+
+    for (int i = 0; i < ships.length; ++i) {
+      for (int j = 0; j < ships[i].length; ++j) {
+        if (ships[i][j] > 0) {
+          score += ships[i][j] / CoastGuard.maxCapacity + 1;
+        } else if (ships[i][j] < 0) {
+          score += 1;
+        }
+      }
+    }
+
+    return score + node.getState().getCurrentCapacity() > 0 ? 1 : 0;
+  }
+
   private String greedySearch(SearchTreeNode<CoastGuardState> root, Heuristic heuristic) {
     // TODO: implement greedy search
     return "";
   }
 
   private String aStarSearch(SearchTreeNode<CoastGuardState> root, Heuristic heuristic) {
-    // TODO: implement a star search
-    return "";
+    visitedStates.clear();
+    PriorityQueue<SearchTreeNode<CoastGuardState>> pq = new PriorityQueue<SearchTreeNode<CoastGuardState>>(
+        (node1, node2) -> {
+          double g1 = node1.getPathCost();
+          double g2 = node2.getPathCost();
+
+          if (heuristic == Heuristic.HEURISTIC_1) {
+            double h1 = heuristic1Score(node1);
+            double f1 = g1 + h1;
+            double h2 = heuristic1Score(node2);
+            double f2 = g2 + h2;
+
+            return (int) (f1 - f2);
+          } else if (heuristic == Heuristic.HEURISTIC_2) {
+            double h1 = heuristic2Score(node1);
+            double f1 = g1 + h1;
+            double h2 = heuristic2Score(node2);
+            double f2 = g2 + h2;
+
+            return (int) (f1 - f2);
+          }
+          return 0;
+        });
+
+    pq.add(root);
+    StringBuilder sb = new StringBuilder();
+    int exploredNodes = 0;
+    while (!pq.isEmpty()) {
+      SearchTreeNode<CoastGuardState> node = pq.poll();
+      exploredNodes++;
+      if (this.goalTest(node.getState())) {
+        String plan = constructPlan(node);
+        sb.append(plan).append(";");
+        sb.append(node.getState().getDeaths()).append(";");
+        sb.append(node.getState().getRetrieves()).append(";");
+        sb.append(exploredNodes);
+        break;
+      }
+      for (Action<CoastGuardState> action : this.getActions()) {
+        CoastGuardState resultState = action.perform(node.getState());
+        String hash;
+        if (resultState != null && !visitedStates.contains(hash = resultState.getHash())) {
+          visitedStates.add(hash);
+          SearchTreeNode<CoastGuardState> resultNode = new SearchTreeNode<CoastGuardState>(resultState, node, action,
+              node.getDepth() + 1, resultState.getDeaths() + node.getDepth() + 1);
+          pq.add(resultNode);
+        }
+      }
+    }
+
+    return sb.toString();
   }
 
   public static String solve(String grid, String searchStrategy, boolean visualise) {
@@ -353,12 +445,12 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
       // case Constants.GreedySearchWithManhattanDistanceSearch:
       // res = coastGuardSearchProblem.greedySearch(rootNode, Heuristic.MANHATTAN);
       // break;
-      // case Constants.AStarSearchWithEuclideanDistanceSearch:
-      // res = coastGuardSearchProblem.aStarSearch(rootNode, Heuristic.EUCLIDIAN);
-      // break;
-      // case Constants.AStarSearchWithManhattanDistanceSearch:
-      // res = coastGuardSearchProblem.aStarSearch(rootNode, Heuristic.MANHATTAN);
-      // break;
+      case Constants.AStarSearchWithFirstHeuristic:
+        res = coastGuardSearchProblem.aStarSearch(rootNode, Heuristic.HEURISTIC_1);
+        break;
+      case Constants.AStarSearchWithSecondHeuristic:
+        res = coastGuardSearchProblem.aStarSearch(rootNode, Heuristic.HEURISTIC_2);
+        break;
       default:
         res = "SEARCH_STRATEGY_NOT_SUPPORTED";
     }
