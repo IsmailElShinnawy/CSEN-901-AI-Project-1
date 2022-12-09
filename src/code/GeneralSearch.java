@@ -4,6 +4,7 @@ import java.util.HashSet;
 
 import code.actions.Action;
 import code.interfaces.Hashable;
+import code.utils.Performance;
 import code.utils.Tuple;
 
 public class GeneralSearch {
@@ -20,6 +21,7 @@ public class GeneralSearch {
       SearchTreeNode<T> node = store.poll();
       exploredNodes++;
       if (problem.goalTest(node.getState())) {
+        Performance.computeRunTimeAndMemory();
         return new Tuple<SearchTreeNode<T>, Integer>(node, exploredNodes);
       }
       for (Action<T> action : problem.getActions()) {
