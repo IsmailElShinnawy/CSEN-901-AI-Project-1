@@ -1,6 +1,9 @@
 package code.utils;
 
 import com.sun.management.OperatingSystemMXBean;
+
+import code.CoastGuard;
+
 import java.lang.management.ManagementFactory;
 
 public class Performance {
@@ -19,7 +22,9 @@ public class Performance {
     double memoryUsedBytes = runtime.totalMemory() - runtime.freeMemory();
     double memoryUsedMBytes = Math.round(memoryUsedBytes / mb * 100.0) / 100.0;
     long cpuTimeMs = osBean.getProcessCpuTime() / 1000000;
-    System.out.println("CPU time in milliseconds is: " + cpuTimeMs);
-    System.out.println("Memory used is " + memoryUsedMBytes + " in Mega Bytes");
+    if (CoastGuard.isVisualising()) {
+      System.out.println("CPU time in milliseconds is: " + cpuTimeMs);
+      System.out.println("Memory used is " + memoryUsedMBytes + " in Mega Bytes");
+    }
   }
 }

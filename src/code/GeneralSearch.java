@@ -19,6 +19,9 @@ public class GeneralSearch {
     int exploredNodes = 0;
     while (!store.isEmpty()) {
       SearchTreeNode<T> node = store.poll();
+      if (CoastGuard.isVisualising()) {
+        System.out.println(node);
+      }
       exploredNodes++;
       if (problem.goalTest(node.getState())) {
         Performance.computeRunTimeAndMemory();

@@ -1,5 +1,7 @@
 package code;
 
+import java.util.Arrays;
+
 import code.interfaces.Hashable;
 import code.utils.Utils;
 
@@ -53,5 +55,16 @@ public class CoastGuardState implements Hashable {
     // TODO: check if hashing function needs enhancement
     return currentRow + "_" + currentCol + "_" + currentCapacity + "_" + retrieves + "_" + deaths + "_"
         + Utils.arrayToString(ships);
+  }
+
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Row: ").append(currentRow).append(" Col: ").append(currentCol).append("\n");
+    sb.append("Capacity: ").append(currentCapacity).append(" Deaths: ").append(deaths).append(" Retrieves: ")
+        .append(retrieves).append("\n");
+    for (int arr[] : ships) {
+      sb.append(Arrays.toString(arr)).append("\n");
+    }
+    return sb.toString();
   }
 }

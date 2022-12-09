@@ -31,6 +31,7 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
 
   private static int maxCapacity;
   private static boolean[][] stations;
+  private static boolean visualise;
 
   public CoastGuard(CoastGuardState initialState) {
     super(initialState);
@@ -369,7 +370,7 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     return sb.toString();
   }
 
-  public static String solve(String grid, String searchStrategy, boolean visualise) {
+  public static String solve(String grid, String searchStrategy, boolean vis) {
     // Token consuming
     StringTokenizer mainTokenizer = new StringTokenizer(grid, ";");
     StringTokenizer helperTokenizer;
@@ -397,6 +398,8 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
     int shipsGrid[][] = new int[rows][cols];
     String shipsToken = mainTokenizer.nextToken();
     populateShipsGrid(shipsToken, shipsGrid);
+
+    visualise = vis;
 
     // Solving
     CoastGuardState rootState = new CoastGuardState(cgRow, cgCol, 0, 0, 0, shipsGrid);
@@ -449,5 +452,9 @@ public class CoastGuard extends SearchProblem<CoastGuardState> {
 
   public static int getMaxCapacity() {
     return maxCapacity;
+  }
+
+  public static boolean isVisualising() {
+    return visualise;
   }
 }

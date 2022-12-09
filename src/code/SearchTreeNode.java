@@ -43,4 +43,13 @@ public class SearchTreeNode<T> {
     return this.parent == null;
   }
 
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("Depth: ").append(getDepth()).append(" Path Cost: ").append(pathCost).append(" Generating Action: ")
+        .append(generatingAction == null ? "ROOT" : generatingAction.toString()).append("\n");
+    sb.append("State:\n");
+    sb.append(state.toString());
+    return sb.toString();
+  }
+
 }
